@@ -1,0 +1,16 @@
+FROM golang:1.25 AS build
+
+ENV PATH="$PATH:$(go env GOPATH)/bin"
+
+COPY go.mod go.sum /src/
+COPY tp_model /src/tp_model
+
+ENV CGO_ENABLED=0
+RUN cd /src && go build -o /tp_model tp_model/main.go
+
+FROM alpine:3.20
+
+COPY --from=build /tp_model /tp_model
+COPY --from=build /src/tp_model/config.yaml ./
+
+ENTRYPOINT [ "/tp_model" ]

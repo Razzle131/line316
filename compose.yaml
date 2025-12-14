@@ -1,0 +1,14 @@
+services:
+  tp:
+    image: tp_model:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.tp_model
+    container_name: tp
+    restart: unless-stopped
+    ports:
+      - 80:8080
+    volumes:
+      - ./tp_model/config.yaml:/config.yaml
+    environment:
+      - ADDRESS=:8080
