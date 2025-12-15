@@ -8,6 +8,8 @@ up: down
 down:
 	${container_runtime} compose down
 
-run:
+build: 
 	docker build -t tp_model:latest -f Dockerfile.tp_model ./
+
+run: build	
 	docker run --rm -it --net=host tp_model:latest nc -lkv 0.0.0.0 8080

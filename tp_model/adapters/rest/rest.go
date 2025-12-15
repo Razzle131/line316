@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/Razzle131/line316/tp_model/core"
 )
@@ -103,10 +104,8 @@ func NewGripperDownHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 
 func NewGripperOpenHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.OpenGripper()
-
-		err := s.PlacePuck()
-		if err != core.ErrSlotEmpty {
+		err := s.OpenGripper()
+		if err != nil {
 			log.Error("open gripper", "error", err)
 			http.Error(w, fmt.Sprintf("suspicious opening of gripper: %s", err.Error()), http.StatusInternalServerError)
 			return
@@ -118,11 +117,11 @@ func NewGripperOpenHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 
 func NewGripperCloseHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.CloseGripper()
-
-		err := s.TakePuck()
+		err := s.CloseGripper()
 		if err != nil {
 			log.Error("close gripper", "error", err)
+			http.Error(w, fmt.Sprintf("suspicious closing of gripper: %s", err.Error()), http.StatusInternalServerError)
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -132,7 +131,7 @@ func NewGripperCloseHandler(log *slog.Logger, s *core.Service) http.HandlerFunc 
 func NewGripperStopHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.StopGripper()
-
+		time.Sleep(20 * time.Millisecond)
 		w.WriteHeader(http.StatusOK)
 	}
 }

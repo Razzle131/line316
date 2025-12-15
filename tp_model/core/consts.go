@@ -14,7 +14,7 @@ const (
 
 	gripperVerticalSpeed = 0.1  // m/s
 	gripperUpPos         = 0.09 // m
-	gripperDownPos       = 0    // m
+	gripperDownPos       = 0.0  // m
 
 	gripperHorizontalSpeed = 0.1                                                                // m/s
 	gripperCarouselPos     = gripperLeftSensorLength + gripperBaseLength/2                      // m

@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"log/slog"
 	"sync/atomic"
 	"time"
 )
@@ -139,7 +138,6 @@ func (g *Gripper) MoveLeft() error {
 	go func() {
 		ticker := time.NewTicker(time.Second / tickrate)
 		for range ticker.C {
-			slog.Info("gripper pos", "pos", g.CurHorizontalPosition)
 			if g.IsWantToStopMoving.Load() {
 				break
 			}
@@ -193,7 +191,7 @@ func (g *Gripper) MoveUp() error {
 			if g.IsWantToStopMoving.Load() {
 				break
 			}
-			g.CurVerticalPosition = min(gripperUpPos, g.CurVerticalPosition+gripperVerticalSpeed/tickrate)
+			g.CurVerticalPosition = min(gripperUpPos, g.CurVerticalPosition+float64(gripperVerticalSpeed)/tickrate)
 		}
 		g.IsMovingVerticly = false
 	}()
@@ -218,7 +216,7 @@ func (g *Gripper) MoveDown() error {
 			if g.IsWantToStopMoving.Load() {
 				break
 			}
-			g.CurVerticalPosition = max(gripperDownPos, g.CurVerticalPosition-gripperVerticalSpeed/tickrate)
+			g.CurVerticalPosition = max(gripperDownPos, g.CurVerticalPosition-float64(gripperVerticalSpeed)/tickrate)
 		}
 		g.IsMovingVerticly = false
 	}()

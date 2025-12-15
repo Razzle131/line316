@@ -86,8 +86,16 @@ func NewService(logger *slog.Logger) *Service {
 	s.sensors["ns:1, i:4"] = sensor.New("gripper sorting position", "ns:1, i:4")
 
 	go s.updateSensors()
+	go s.printGripperPos()
 
 	return &s
+}
+
+func (s *Service) printGripperPos() {
+	ticker := time.NewTicker(time.Millisecond * 100)
+	for range ticker.C {
+		s.logger.Debug("gripper pos", "x", s.gripper.CurHorizontalPosition, "y", s.gripper.CurVerticalPosition)
+	}
 }
 
 func (s *Service) updateSensors() {
@@ -170,12 +178,36 @@ func (s *Service) MoveGripperDown() error {
 	return err
 }
 
-func (s *Service) OpenGripper() {
+func (s *Service) OpenGripper() error {
 	s.gripper.Open()
+
+	var err error
+	if s.gripper.PuckSlot != nil {
+		if s.gripper.CurVerticalPosition > gripperDownPos {
+			err = errors.New("opening gripper with puck in higher than lower position")
+		} else {
+			err = s.placePuck()
+			if err != nil {
+				s.logger.Error("place puck", "error", err)
+			}
+		}
+	}
+
+	return err
 }
 
-func (s *Service) CloseGripper() {
+func (s *Service) CloseGripper() error {
+	var err error
+	if s.gripper.PuckSlot == nil && s.gripper.CurVerticalPosition <= gripperDownPos {
+		err = s.takePuck()
+		if err != nil {
+			s.logger.Error("take puck", "error", err)
+		}
+	}
+
 	s.gripper.Close()
+
+	return err
 }
 
 func (s *Service) StopGripper() {
@@ -186,7 +218,7 @@ func (s *Service) EnableMovingGripper() {
 	s.gripper.EnableMoving()
 }
 
-func (s *Service) TakePuck() error {
+func (s *Service) takePuck() error {
 	curGripperPos := s.gripper.CurHorizontalPosition
 	var pucker Pucker
 	if math.Abs(gripperCarouselPos-curGripperPos) <= gripperAbleMiss {
@@ -217,7 +249,7 @@ func (s *Service) TakePuck() error {
 	return nil
 }
 
-func (s *Service) PlacePuck() error {
+func (s *Service) placePuck() error {
 	puck, err := s.gripper.PlacePuck()
 	if err != nil {
 		s.logger.Error("place puck", "error", err)
