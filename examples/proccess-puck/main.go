@@ -138,16 +138,6 @@ func mustMovePuckToCarousel() {
 		panic(string(respString))
 	}
 
-	// enable movement of gripper
-	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/enable", serverURL), "", nil)
-	if err != nil {
-		panic(err)
-	}
-	if resp.StatusCode != 200 {
-		respString, _ := io.ReadAll(resp.Body)
-		panic(string(respString))
-	}
-
 	// move gripper up
 	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/up", serverURL), "", nil)
 	if err != nil {
@@ -163,16 +153,6 @@ func mustMovePuckToCarousel() {
 
 	// stop gripper
 	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/stop", serverURL), "", nil)
-	if err != nil {
-		panic(err)
-	}
-	if resp.StatusCode != 200 {
-		respString, _ := io.ReadAll(resp.Body)
-		panic(string(respString))
-	}
-
-	// enable movement of gripper
-	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/enable", serverURL), "", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -227,16 +207,6 @@ func mustMovePuckToCarousel() {
 		panic(string(respString))
 	}
 
-	// enable movement of gripper
-	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/enable", serverURL), "", nil)
-	if err != nil {
-		panic(err)
-	}
-	if resp.StatusCode != 200 {
-		respString, _ := io.ReadAll(resp.Body)
-		panic(string(respString))
-	}
-
 	// move gripper down
 	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/down", serverURL), "", nil)
 	if err != nil {
@@ -262,16 +232,6 @@ func mustMovePuckToCarousel() {
 
 	// place puck by gripper
 	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/open", serverURL), "", nil)
-	if err != nil {
-		panic(err)
-	}
-	if resp.StatusCode != 200 {
-		respString, _ := io.ReadAll(resp.Body)
-		panic(string(respString))
-	}
-
-	// enable movement of gripper
-	resp, err = http.Post(fmt.Sprintf("%s/tp/gripper/enable", serverURL), "", nil)
 	if err != nil {
 		panic(err)
 	}

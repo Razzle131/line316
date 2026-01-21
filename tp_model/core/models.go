@@ -299,17 +299,17 @@ func (c *Carousel) RotateOnce() {
 }
 
 type PackagingLine struct {
-	puckSlot *Puck
+	PuckSlot *Puck
 }
 
 func NewPackagingLine() PackagingLine {
 	return PackagingLine{
-		puckSlot: nil,
+		PuckSlot: nil,
 	}
 }
 
 func (p *PackagingLine) PlacePuck(puck Puck) error {
-	if p.puckSlot != nil {
+	if p.PuckSlot != nil {
 		return ErrSlotOccupied
 	}
 
@@ -317,56 +317,56 @@ func (p *PackagingLine) PlacePuck(puck Puck) error {
 		return ErrPuckPackaged
 	}
 
-	p.puckSlot = &puck
+	p.PuckSlot = &puck
 
 	return nil
 }
 
 func (p *PackagingLine) TakePuck() (Puck, error) {
-	if p.puckSlot == nil {
+	if p.PuckSlot == nil {
 		return Puck{}, ErrSlotEmpty
 	}
 
-	if !p.puckSlot.IsPackaged {
+	if !p.PuckSlot.IsPackaged {
 		return Puck{}, errors.New("need to package puck before taking")
 	}
 
-	puck := *p.puckSlot
-	p.puckSlot = nil
+	puck := *p.PuckSlot
+	p.PuckSlot = nil
 
 	return puck, nil
 }
 
 func (p *PackagingLine) PackagePuck() error {
-	if p.puckSlot == nil {
+	if p.PuckSlot == nil {
 		return ErrSlotEmpty
 	}
 
-	if p.puckSlot.IsPackaged {
+	if p.PuckSlot.IsPackaged {
 		return ErrPuckPackaged
 	}
 
 	time.Sleep(packagingTime)
 
-	p.puckSlot.IsPackaged = true
+	p.PuckSlot.IsPackaged = true
 
 	return nil
 }
 
 type SortingLine struct {
-	puckSlot *Puck
+	PuckSlot *Puck
 	Produced map[string][]Puck // color -> pucks
 }
 
 func NewSortingLine() SortingLine {
 	return SortingLine{
-		puckSlot: nil,
+		PuckSlot: nil,
 		Produced: make(map[string][]Puck),
 	}
 }
 
 func (s *SortingLine) PlacePuck(puck Puck) error {
-	if s.puckSlot != nil {
+	if s.PuckSlot != nil {
 		return ErrSlotOccupied
 	}
 
@@ -374,31 +374,31 @@ func (s *SortingLine) PlacePuck(puck Puck) error {
 		return errors.New("need to package puck before placing")
 	}
 
-	s.puckSlot = &puck
+	s.PuckSlot = &puck
 
 	return nil
 }
 
 func (s *SortingLine) TakePuck() (Puck, error) {
-	if s.puckSlot == nil {
+	if s.PuckSlot == nil {
 		return Puck{}, ErrSlotEmpty
 	}
 
-	puck := *s.puckSlot
-	s.puckSlot = nil
+	puck := *s.PuckSlot
+	s.PuckSlot = nil
 
 	return puck, nil
 }
 
 func (s *SortingLine) SortPuck() error {
-	if s.puckSlot == nil {
+	if s.PuckSlot == nil {
 		return ErrSlotEmpty
 	}
 
 	time.Sleep(sortingTime)
 
-	s.Produced[s.puckSlot.Color] = append(s.Produced[s.puckSlot.Color], *s.puckSlot)
-	s.puckSlot = nil
+	s.Produced[s.PuckSlot.Color] = append(s.Produced[s.PuckSlot.Color], *s.PuckSlot)
+	s.PuckSlot = nil
 
 	return nil
 }

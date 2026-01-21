@@ -132,14 +132,7 @@ func NewGripperStopHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.StopGripper()
 		time.Sleep(20 * time.Millisecond)
-		w.WriteHeader(http.StatusOK)
-	}
-}
-
-func NewGripperEnableHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
 		s.EnableMovingGripper()
-
 		w.WriteHeader(http.StatusOK)
 	}
 }
@@ -203,5 +196,90 @@ func NewSortingHandler(log *slog.Logger, s *core.Service) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+// data for visualisation
+type Start struct {
+	PuckSlot *core.Puck `json:"puckSlot"`
+}
+type Gripper struct {
+	IsOpen                bool       `json:"isOpen"`
+	PuckSlot              *core.Puck `json:"puckSlot"`
+	CurHorizontalPosition float64    `json:"curHorizontalPosition"`
+	CurVerticalPosition   float64    `json:"curVerticalPosition"`
+}
+type Carousel struct {
+	Slots []*core.Puck `json:"slots"`
+}
+type PackagingLine struct {
+	PuckSlot *core.Puck `json:"puckSlot"`
+}
+type SortingLine struct {
+	PuckSlot *core.Puck             `json:"puckSlot"`
+	Produced map[string][]core.Puck `json:"produced"`
+}
+
+func NewStartHandler(s *core.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		model := s.Start
+
+		resp := Start{
+			PuckSlot: model.PuckSlot,
+		}
+
+		json.NewEncoder(w).Encode(resp)
+	}
+}
+
+func NewGripperHandler(s *core.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		model := &s.Gripper
+
+		resp := Gripper{
+			IsOpen:                model.IsOpen,
+			PuckSlot:              model.PuckSlot,
+			CurHorizontalPosition: model.CurHorizontalPosition,
+			CurVerticalPosition:   model.CurVerticalPosition,
+		}
+
+		json.NewEncoder(w).Encode(resp)
+	}
+}
+
+func NewCarouselHandler(s *core.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		model := s.Carousel
+
+		resp := Carousel{
+			Slots: model.Slots,
+		}
+
+		json.NewEncoder(w).Encode(resp)
+	}
+}
+
+func NewPackagingLineHandler(s *core.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		model := s.PackagingLine
+
+		resp := PackagingLine{
+			PuckSlot: model.PuckSlot,
+		}
+
+		json.NewEncoder(w).Encode(resp)
+	}
+}
+
+func NewSortingLineHandler(s *core.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		model := s.SortingLine
+
+		resp := SortingLine{
+			PuckSlot: model.PuckSlot,
+			Produced: model.Produced,
+		}
+
+		json.NewEncoder(w).Encode(resp)
 	}
 }

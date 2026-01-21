@@ -16,22 +16,22 @@ type Service struct {
 	// actuators map[string]Actuator // addr -> obj
 	sensors map[string]Sensor // addr -> obj
 
-	gripper       Gripper
-	start         Start
-	carousel      Carousel
-	packagingLine PackagingLine
-	sortingLine   SortingLine
+	Gripper       Gripper
+	Start         Start
+	Carousel      Carousel
+	PackagingLine PackagingLine
+	SortingLine   SortingLine
 }
 
 func NewService(logger *slog.Logger) *Service {
 	s := Service{
 		logger:        logger,
 		sensors:       make(map[string]Sensor),
-		start:         NewStart(),
-		carousel:      NewCarousel(),
-		gripper:       NewGripper(),
-		packagingLine: NewPackagingLine(),
-		sortingLine:   NewSortingLine(),
+		Gripper:       NewGripper(),
+		Start:         NewStart(),
+		Carousel:      NewCarousel(),
+		PackagingLine: NewPackagingLine(),
+		SortingLine:   NewSortingLine(),
 	}
 
 	// // Processing station PLC sensors
@@ -86,7 +86,7 @@ func NewService(logger *slog.Logger) *Service {
 	s.sensors["ns:1, i:4"] = sensor.New("gripper sorting position", "ns:1, i:4")
 
 	go s.updateSensors()
-	go s.printGripperPos()
+	//go s.printGripperPos()
 
 	return &s
 }
@@ -94,14 +94,14 @@ func NewService(logger *slog.Logger) *Service {
 func (s *Service) printGripperPos() {
 	ticker := time.NewTicker(time.Millisecond * 100)
 	for range ticker.C {
-		s.logger.Debug("gripper pos", "x", s.gripper.CurHorizontalPosition, "y", s.gripper.CurVerticalPosition)
+		s.logger.Debug("gripper pos", "x", s.Gripper.CurHorizontalPosition, "y", s.Gripper.CurVerticalPosition)
 	}
 }
 
 func (s *Service) updateSensors() {
 	ticker := time.NewTicker(time.Second / tickrate)
 	for range ticker.C {
-		curGripperPos := s.gripper.CurHorizontalPosition
+		curGripperPos := s.Gripper.CurHorizontalPosition
 		if math.Abs(gripperCarouselPos-curGripperPos) <= gripperAbleMiss {
 			s.sensors["ns:1, i:1"].WriteValue(true)
 		} else {
@@ -141,13 +141,13 @@ func (s *Service) PlaceNewStartPuck() error {
 	colors := []string{"red", "silver", "black"}
 
 	puck := NewPuck(colors[rand.Intn(len(colors))])
-	err := s.start.PlacePuck(puck)
+	err := s.Start.PlacePuck(puck)
 
 	return err
 }
 
 func (s *Service) MoveGripperLeft() error {
-	err := s.gripper.MoveLeft()
+	err := s.Gripper.MoveLeft()
 	if err != nil {
 		s.logger.Error("move left", "err", err)
 	}
@@ -155,7 +155,7 @@ func (s *Service) MoveGripperLeft() error {
 }
 
 func (s *Service) MoveGripperRight() error {
-	err := s.gripper.MoveRight()
+	err := s.Gripper.MoveRight()
 	if err != nil {
 		s.logger.Error("move right", "err", err)
 	}
@@ -163,7 +163,7 @@ func (s *Service) MoveGripperRight() error {
 }
 
 func (s *Service) MoveGripperUp() error {
-	err := s.gripper.MoveUp()
+	err := s.Gripper.MoveUp()
 	if err != nil {
 		s.logger.Error("move up", "err", err)
 	}
@@ -171,7 +171,7 @@ func (s *Service) MoveGripperUp() error {
 }
 
 func (s *Service) MoveGripperDown() error {
-	err := s.gripper.MoveDown()
+	err := s.Gripper.MoveDown()
 	if err != nil {
 		s.logger.Error("move down", "err", err)
 	}
@@ -179,11 +179,11 @@ func (s *Service) MoveGripperDown() error {
 }
 
 func (s *Service) OpenGripper() error {
-	s.gripper.Open()
+	s.Gripper.Open()
 
 	var err error
-	if s.gripper.PuckSlot != nil {
-		if s.gripper.CurVerticalPosition > gripperDownPos {
+	if s.Gripper.PuckSlot != nil {
+		if s.Gripper.CurVerticalPosition > gripperDownPos {
 			err = errors.New("opening gripper with puck in higher than lower position")
 		} else {
 			err = s.placePuck()
@@ -198,35 +198,35 @@ func (s *Service) OpenGripper() error {
 
 func (s *Service) CloseGripper() error {
 	var err error
-	if s.gripper.PuckSlot == nil && s.gripper.CurVerticalPosition <= gripperDownPos {
+	if s.Gripper.PuckSlot == nil && s.Gripper.CurVerticalPosition <= gripperDownPos {
 		err = s.takePuck()
 		if err != nil {
 			s.logger.Error("take puck", "error", err)
 		}
 	}
 
-	s.gripper.Close()
+	s.Gripper.Close()
 
 	return err
 }
 
 func (s *Service) StopGripper() {
-	s.gripper.Stop()
+	s.Gripper.Stop()
 }
 
 func (s *Service) EnableMovingGripper() {
-	s.gripper.EnableMoving()
+	s.Gripper.EnableMoving()
 }
 
 func (s *Service) takePuck() error {
-	curGripperPos := s.gripper.CurHorizontalPosition
+	curGripperPos := s.Gripper.CurHorizontalPosition
 	var pucker Pucker
 	if math.Abs(gripperCarouselPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.carousel
+		pucker = &s.Carousel
 	} else if math.Abs(gripperStartPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.start
+		pucker = &s.Start
 	} else if math.Abs(gripperPackagingPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.packagingLine
+		pucker = &s.PackagingLine
 	} else if math.Abs(gripperSortingPos-curGripperPos) <= gripperAbleMiss {
 		return errors.New("should not take puck from sorting line")
 	} else {
@@ -239,7 +239,7 @@ func (s *Service) takePuck() error {
 		return err
 	}
 
-	err = s.gripper.TakePuck(puck)
+	err = s.Gripper.TakePuck(puck)
 	if err != nil {
 		pucker.PlacePuck(puck)
 		s.logger.Error("take puck", "error", err)
@@ -250,29 +250,29 @@ func (s *Service) takePuck() error {
 }
 
 func (s *Service) placePuck() error {
-	puck, err := s.gripper.PlacePuck()
+	puck, err := s.Gripper.PlacePuck()
 	if err != nil {
 		s.logger.Error("place puck", "error", err)
 		return err
 	}
 
-	curGripperPos := s.gripper.CurHorizontalPosition
+	curGripperPos := s.Gripper.CurHorizontalPosition
 	var pucker Pucker
 	if math.Abs(gripperCarouselPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.carousel
+		pucker = &s.Carousel
 	} else if math.Abs(gripperStartPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.start
+		pucker = &s.Start
 	} else if math.Abs(gripperPackagingPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.packagingLine
+		pucker = &s.PackagingLine
 	} else if math.Abs(gripperSortingPos-curGripperPos) <= gripperAbleMiss {
-		pucker = &s.sortingLine
+		pucker = &s.SortingLine
 	} else {
 		return errors.New("no position matched for gripper")
 	}
 
 	err = pucker.PlacePuck(puck)
 	if err != nil {
-		s.gripper.TakePuck(puck)
+		s.Gripper.TakePuck(puck)
 		s.logger.Error("place puck", "error", err)
 		return err
 	}
@@ -281,11 +281,11 @@ func (s *Service) placePuck() error {
 }
 
 func (s *Service) RotateCarousel() {
-	s.carousel.RotateOnce()
+	s.Carousel.RotateOnce()
 }
 
 func (s *Service) InspectPuck() (Puck, error) {
-	puck, err := s.carousel.InspectPuck()
+	puck, err := s.Carousel.InspectPuck()
 	if err != nil {
 		s.logger.Error("inspect puck", "error", err)
 	}
@@ -293,7 +293,7 @@ func (s *Service) InspectPuck() (Puck, error) {
 }
 
 func (s *Service) DrillPuck() error {
-	err := s.carousel.DrillPuck()
+	err := s.Carousel.DrillPuck()
 	if err != nil {
 		s.logger.Error("drill puck", "error", err)
 	}
@@ -301,7 +301,7 @@ func (s *Service) DrillPuck() error {
 }
 
 func (s *Service) PackagePuck() error {
-	err := s.packagingLine.PackagePuck()
+	err := s.PackagingLine.PackagePuck()
 	if err != nil {
 		s.logger.Error("package puck", "error", err)
 	}
@@ -309,7 +309,7 @@ func (s *Service) PackagePuck() error {
 }
 
 func (s *Service) SortPuck() error {
-	err := s.sortingLine.SortPuck()
+	err := s.SortingLine.SortPuck()
 	if err != nil {
 		s.logger.Error("package puck", "error", err)
 	}

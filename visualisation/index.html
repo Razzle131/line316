@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>line316</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="carousel">
+        <div style="margin-top: 20px;">
+            <div id="car-slot5" class="circle" style="margin-left: 100px;"></div>
+            <div id="car-slot4" class="circle" style="margin-left: 20px;"></div>
+            <div id="car-slot3" class="circle" style="margin-left: 100px;"></div>
+            <div id="car-slot2" class="circle" style="margin-left: 210px; margin-top: -100px;"></div>
+            <div id="car-slot6" class="circle" style="margin-left: 210px; margin-top: -300px;"></div>
+            <div id="car-slot1" class="circle" style="margin-left: 300px;"></div>
+        </div>
+    </div>
+
+    <div id="gripper">
+        <div style="margin-left: 500px; margin-top: -300px;">
+            <div style="margin-top: 100px;"></div>
+            <div id="gripper-puck" class="rectangle" style="position: absolute; margin-top: 250px; margin-left: 58px; z-index: 3; visibility: visible;"></div>
+            <img src="emptyGripper.png" style="z-index: 1;">
+            <p>Позиция по горизонтали: <a id="gripper-hor-pos">0.200</a> м</p>
+            <p>Позиция по вертикали: <a id="gripper-ver-pos">0.200</a> м</p>
+        </div>
+    </div>
+
+    <div id="start">
+        <div style="margin-left: 800px; margin-top: -400px;">
+            <div id="start-slot" class="circle" ></div>
+            <p>Старт</p>
+        </div>
+    </div>
+
+    <div id="packaging">
+        <div style="margin-top: 20px; margin-left: 800px;">
+            <div id="package-slot" class="circle"></div>
+            <p>Упаковка</p>
+        </div>
+    </div>
+
+    <div id="sorting">
+        <div style="margin-top: 20px; margin-left: 800px;">
+            <div id="sort-slot" class="circle"></div>
+            <p>Сортировка</p>
+        </div>
+    </div>
+</body>
+
+<script src="index.js"></script>
+
+</html>

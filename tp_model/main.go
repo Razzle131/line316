@@ -15,6 +15,15 @@ import (
 	"github.com/Razzle131/line316/tp_model/core"
 )
 
+// данная программа написано криво и гексагональной архитектуре не соответствует, просьба не смотреть), модель учебная, переписывать ее полностью уже поздно
+
+func WithoutCORS(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		f(w, r)
+	}
+}
+
 func main() {
 	var configPath string
 	flag.StringVar(&configPath, "config", "config.yaml", "server configuration file")
@@ -53,7 +62,6 @@ func run(cfg config.Config, log *slog.Logger) error {
 	mux.Handle("POST /tp/gripper/open", rest.NewGripperOpenHandler(log, service))
 	mux.Handle("POST /tp/gripper/close", rest.NewGripperCloseHandler(log, service))
 
-	mux.Handle("POST /tp/gripper/enable", rest.NewGripperEnableHandler(log, service))
 	mux.Handle("POST /tp/gripper/stop", rest.NewGripperStopHandler(log, service))
 
 	// carousel
@@ -66,6 +74,13 @@ func run(cfg config.Config, log *slog.Logger) error {
 
 	// sorting
 	mux.Handle("POST /tp/sorting/sort", rest.NewSortingHandler(log, service))
+
+	// visualisation
+	mux.Handle("GET /vis/start", WithoutCORS(rest.NewStartHandler(service)))
+	mux.Handle("GET /vis/gripper", WithoutCORS(rest.NewGripperHandler(service)))
+	mux.Handle("GET /vis/carousel", WithoutCORS(rest.NewCarouselHandler(service)))
+	mux.Handle("GET /vis/packaging", WithoutCORS(rest.NewPackagingLineHandler(service)))
+	mux.Handle("GET /vis/sorting", WithoutCORS(rest.NewSortingLineHandler(service)))
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
